@@ -130,3 +130,73 @@ void validateInputFile(const char *inputFilename)
         printf("Файл CSV проверен, ошибок не обнаружено.\n");
     }
 }
+
+// Функция для расчета средней температуры
+double calculateAverageTemperature(struct sensor *info, int count)
+{
+    double sum = 0.0;
+    for (int i = 0; i < count; ++i)
+    {
+        sum += info[i].temperature;
+    }
+    return sum / count;
+}
+
+// Функция для расчета минимальной температуры
+double findMinimumTemperature(struct sensor *info, int count)
+{
+    double min = info[0].temperature;
+    for (int i = 1; i < count; ++i)
+    {
+        if (info[i].temperature < min)
+        {
+            min = info[i].temperature;
+        }
+    }
+    return min;
+}
+
+// Функция для расчета максимальной температуры
+double findMaximumTemperature(struct sensor *info, int count)
+{
+    double max = info[0].temperature;
+    for (int i = 1; i < count; ++i)
+    {
+        if (info[i].temperature > max)
+        {
+            max = info[i].temperature;
+        }
+    }
+    return max;
+}
+
+// Функция для вывода статистики по месяцам
+void displayMonthStatistics(struct sensor *info, int count)
+{
+    for (int i = 0; i < count; ++i)
+    {
+        double avg = calculateAverageTemperature(&info[i], count);
+        double min = findMinimumTemperature(&info[i], count);
+        double max = findMaximumTemperature(&info[i], count);
+        printf("Месяц: %d\n", info[i].month);
+        printf("Средняя температура: %.2lf\n", avg);
+        printf("Минимальная температура: %.2lf\n", min);
+        printf("Максимальная температура: %.2lf\n\n", max);
+    }
+}
+
+// Функция для вывода статистики за год
+void displayYearStatistics(struct sensor *info, int count)
+{
+    double totalSum = 0.0;
+    for (int i = 0; i < count; ++i)
+    {
+        totalSum += info[i].temperature;
+    }
+    double annualAverage = totalSum / count;
+    double min = findMinimumTemperature(info, count);
+    double max = findMaximumTemperature(info, count);
+    printf("Среднегодовая температура: %.2lf\n", annualAverage);
+    printf("Минимальная температура: %.2lf\n", min);
+    printf("Максимальная температура: %.2lf\n", max);
+}
