@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <stdbool.h>
+#include <float.h>
 #include <string.h>
 #include <locale.h>
 
@@ -47,7 +49,7 @@ int AddInfo(struct sensor *info)
         if (scanf("%d;%d;%d;%d;%d;%lf\n", &year, &month, &day, &hour, &minute, &temperature) != 6 || counter == SIZE)
         {
             // Если сканер вернул ошибку или количество объема данных достингуто, тогда выходим из цикла
-            printf("Неверный ввод...\n");
+            printf("Данные сохранены в файл на диске.\n");
             break;
         }
         AddRecord(info, counter++, year, month, day, hour, minute, temperature);
@@ -201,9 +203,78 @@ void displayYearStatistics(struct sensor *info, int count)
     printf("Максимальная температура: %.2lf\n", max);
 }
 
-int main()
+// Функция для обработки статистики за выбранный месяц
+void processMonthStats(struct sensor *info, int month)
 {
-    setlocale(LC_ALL, "russian");
+    int counter = 0;
+    double sum = 0.0;
+    double min = DBL_MAX;
+    double max = -DBL_MAX;
+
+    for (int i = 0; i < counter; i++)
+    {
+        if (info[i].month == month)
+        {
+            sum += info[i].temperature;
+            if (info[i].temperature < min)
+            {
+                min = info[i].temperature;
+            }
+            if (info[i].temperature > max)
+            {
+                max = info[i].temperature;
+            }
+        }
+    }
+
+    double avg = sum / counter;
+
+    printf("Месяц: %d\n", month);
+    printf("Средняя температура: %.2lf\n", avg);
+    printf("Минимальная температура: %.2lf\n", min);
+    printf("Максимальная температура: %.2lf\n\n", max);
+}
+
+// Функция для обработки аргументов командной строки
+void processArguments(int argc, char *argv[])
+{
+    int opt;
+    extern char *optarg;
+    int selectedMonth = atoi(optarg);
+    extern int optind;
+
+    struct sensor sensors[SIZE];
+
+    while ((opt = getopt(argc, argv, "hf:m:")) != -1)
+    {
+        switch (opt)
+        {
+        case 'h':
+            printf("Описание функционала приложения:\n");
+            printf("-h Описание функционала приложения.\n");
+            printf("-f <filename.csv> Входной файл csv для обработки.\n");
+            printf("-m <номер месяца> Вывод статистики за указанный месяц.\n");
+            break;
+        case 'f':
+            validateInputFile(optarg);
+            break;
+        case 'm':
+            // Вычисляем и выводим статистику за выбранный месяц
+            processMonthStats(sensors, selectedMonth);
+            break;
+        default:
+            printf("Неверный параметр командной строки.\n");
+            break;
+        }
+    }
+}
+
+int main(int argc, char *argv[])
+{
+    setlocale(LC_ALL, "Rus");
+    system("chcp 1251");
+
+    processArguments(argc, argv);
 
     int mode;
     printf("Выберите режим:\n1 - Ручной ввод данных\n2 - Проверка данных из файла\n");
