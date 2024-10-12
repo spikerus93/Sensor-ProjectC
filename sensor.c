@@ -95,3 +95,38 @@ bool checkCSVFormat(char *row, int rowNumber)
 
     return true;
 }
+
+// Функция для чтения и проверки данных из файла CSV
+void validateInputFile(const char *inputFilename)
+{
+    FILE *file = fopen(inputFilename, "r");
+    if (file == NULL)
+    {
+        perror("Ошибка открытия файла");
+        exit(EXIT_FAILURE);
+    }
+
+    char row[1024];
+    int rowNumber = 0;
+    bool isErrorFound = false;
+
+    while (fgets(row, sizeof(row), file) != NULL)
+    {
+        rowNumber++;
+        if (!checkCSVFormat(row, rowNumber))
+        {
+            isErrorFound = true;
+        }
+    }
+
+    fclose(file);
+
+    if (isErrorFound)
+    {
+        printf("Ошибки в файле CSV обнаружены.\n");
+    }
+    else
+    {
+        printf("Файл CSV проверен, ошибок не обнаружено.\n");
+    }
+}
