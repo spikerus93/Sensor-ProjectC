@@ -200,3 +200,46 @@ void displayYearStatistics(struct sensor *info, int count)
     printf("Минимальная температура: %.2lf\n", min);
     printf("Максимальная температура: %.2lf\n", max);
 }
+
+int main()
+{
+    setlocale(LC_ALL, "russian");
+
+    int mode;
+    printf("Выберите режим:\n1 - Ручной ввод данных\n2 - Проверка данных из файла\n");
+    scanf("%d", &mode);
+
+    switch (mode)
+    {
+    case 1:
+    {
+        struct sensor sensors[SIZE];
+        int numRecords = AddInfo(sensors);
+
+        // Записываем данные в файл
+        FILE *file = fopen("sensordata.сsv", "w");
+        if (file == NULL)
+        {
+            perror("Ошибка открытия файла");
+            exit(EXIT_FAILURE);
+        }
+
+        for (int i = 0; i < numRecords; i++)
+        {
+            fprintf(file, "%d;%d;%d;%d;%d;%.2lf\n", sensors[i].year, sensors[i].month, sensors[i].day, sensors[i].hour, sensors[i].minute, sensors[i].temperature);
+        }
+
+        fclose(file);
+        break;
+
+    case 2:
+        validateInputFile("temperature_small.csv");
+        break;
+
+    default:
+        printf("Неверный выбор режима. Программа завершена.");
+        break;
+    }
+    }
+    return 0;
+}
