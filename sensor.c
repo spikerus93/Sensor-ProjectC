@@ -55,3 +55,43 @@ int AddInfo(struct sensor *info)
 
     return counter;
 }
+
+// Функция для проверки строки на соответствие формату CSV
+bool checkCSVFormat(char *row, int rowNumber)
+{
+    // Разделитель по умолчанию для формата CSV
+    const char *separator = ",";
+    char *token = strtok(row, separator);
+    int columnIndex = 0;
+
+    while (token != NULL)
+    {
+        if (columnIndex == 5)
+        {
+            // Пятый элемент - температура
+            double temperature;
+            if (sscanf(token, "%lf", &temperature) != 1)
+            {
+                printf("Ошибка в строке %d: неправильный формат температуры.\n", rowNumber);
+                return false;
+            }
+        }
+        else if (columnIndex >= 6)
+        {
+            // Больше пяти колонок - ошибка
+            printf("Ошибка в строке %d: слишком много колонок.\n", rowNumber);
+            return false;
+        }
+        columnIndex++;
+        token = strtok(NULL, separator);
+    }
+
+    if (columnIndex != 6)
+    {
+        // Недостаточно колонок
+        printf("Ошибка в строке %d: недостаточно колонок.\n", rowNumber);
+        return false;
+    }
+
+    return true;
+}
